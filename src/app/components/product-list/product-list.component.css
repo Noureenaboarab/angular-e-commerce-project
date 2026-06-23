@@ -1,0 +1,33 @@
+.page-title { margin-bottom: 1.5rem; color: #1a1a2e; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  transition: transform .2s, box-shadow .2s;
+}
+.card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+.card-emoji { font-size: 4rem; text-align: center; padding: 1.5rem; background: #f8fafc; }
+.card-body { padding: 1rem 1.2rem 1.4rem; }
+.card-body h3 { margin: 0 0 .5rem; font-size: 1.05rem; color: #1a1a2e; }
+.desc { font-size: .85rem; color: #64748b; margin: 0 0 .8rem; line-height: 1.5; }
+.pricing { display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem; }
+.original { text-decoration: line-through; color: #94a3b8; font-size: .9rem; }
+.discounted { font-weight: 700; font-size: 1.1rem; color: #1a1a2e; }
+.tag { background: #dcfce7; color: #166534; font-size: .75rem; font-weight: 600; padding: .2rem .5rem; border-radius: 20px; }
+.actions { display: flex; gap: .6rem; }
+.btn-outline {
+  flex: 1; text-align: center; padding: .5rem; border: 1.5px solid #1a1a2e;
+  border-radius: 8px; color: #1a1a2e; text-decoration: none; font-size: .85rem;
+  transition: background .2s, color .2s;
+}
+.btn-outline:hover { background: #1a1a2e; color: white; }
+.btn-primary {
+  flex: 1; padding: .5rem; border: none; border-radius: 8px;
+  background: #e94560; color: white; cursor: pointer; font-size: .85rem;
+  font-weight: 600; transition: background .2s;
+}
+.btn-primary:hover { background: #c73652; }
+.btn-primary.in-cart { background: #16a34a; }

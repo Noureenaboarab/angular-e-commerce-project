@@ -1,0 +1,30 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 60px;
+  background: #1a1a2e;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.brand { font-size: 1.3rem; font-weight: 700; color: #e94560; text-decoration: none; }
+.nav-links { display: flex; gap: 1.5rem; align-items: center; }
+.nav-links a { color: #ccc; text-decoration: none; font-size: .95rem; transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: white; }
+.cart-link { position: relative; }
+.badge {
+  position: absolute;
+  top: -8px; right: -12px;
+  background: #e94560;
+  color: white;
+  font-size: .7rem;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }

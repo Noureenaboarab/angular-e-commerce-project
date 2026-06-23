@@ -1,0 +1,38 @@
+<a class="back" routerLink="/">← Back to Products</a>
+
+@if (product(); as p) {
+  <div class="detail-card">
+    <div class="detail-emoji">{{ p.image }}</div>
+    <div class="detail-info">
+      <h1>{{ p.name }}</h1>
+      <p class="description">{{ p.description }}</p>
+
+      <div class="price-block">
+        <div class="price-row">
+          <span class="label">Original Price</span>
+          <span class="value" [class.striked]="p.discount > 0">${{ p.price.toFixed(2) }}</span>
+        </div>
+        @if (p.discount > 0) {
+          <div class="price-row">
+            <span class="label">Discount</span>
+            <span class="value discount-pct">-{{ p.discount }}%</span>
+          </div>
+          <div class="price-row final">
+            <span class="label">Final Price</span>
+            <span class="value final-price">${{ finalPrice.toFixed(2) }}</span>
+          </div>
+        }
+      </div>
+
+      <button class="btn-add"
+        [class.in-cart]="cart.isInCart(p.id)"
+        (click)="cart.addToCart(p)">
+        {{ cart.isInCart(p.id) ? '✓ Already in Cart' : '+ Add to Cart' }}
+      </button>
+
+      <a class="btn-cart" routerLink="/cart">View Cart ({{ cart.cartCount() }} items)</a>
+    </div>
+  </div>
+} @else {
+  <p>Product not found.</p>
+}

@@ -1,0 +1,72 @@
+<h2 class="page-title">🛒 Shopping Cart</h2>
+
+@if (cart.cart().length === 0) {
+  <div class="empty">
+    <p>Your cart is empty.</p>
+    <a routerLink="/" class="btn-shop">Browse Products</a>
+  </div>
+} @else {
+  <div class="cart-layout">
+
+    <!-- Items -->
+    <div class="items">
+      @for (item of cart.cart(); track item.product.id) {
+        <div class="cart-item">
+          <div class="item-emoji">{{ item.product.image }}</div>
+
+          <div class="item-info">
+            <h3>{{ item.product.name }}</h3>
+            <div class="unit-price">
+              Unit: ${{ item.product.price.toFixed(2) }}
+              @if (item.product.discount > 0) {
+                → ${{ (item.product.price * (1 - item.product.discount / 100)).toFixed(2) }}
+                <span class="tag">-{{ item.product.discount }}%</span>
+              }
+            </div>
+          </div>
+
+          <div class="item-qty">
+            <label>Qty</label>
+            <input
+              type="number" min="1"
+              [value]="item.quantity"
+              (change)="onQuantityChange(item.product.id, $any($event.target).value)"
+            />
+          </div>
+
+          <div class="item-subtotal">
+            <div class="subtotal-label">Item Total</div>
+            @if (item.product.discount > 0) {
+              <div class="before">${{ itemTotalBefore(item.product.price, item.quantity).toFixed(2) }}</div>
+            }
+            <div class="after">${{ itemTotal(item.product.price, item.product.discount, item.quantity).toFixed(2) }}</div>
+          </div>
+
+          <button class="btn-remove" (click)="cart.removeFromCart(item.product.id)">✕</button>
+        </div>
+      }
+    </div>
+
+    <!-- Summary -->
+    <div class="summary">
+      <h3>Order Summary</h3>
+      <div class="summary-row">
+        <span>Subtotal (before discount)</span>
+        <span>${{ cart.totalBefore().toFixed(2) }}</span>
+      </div>
+      @if (savings > 0) {
+        <div class="summary-row savings">
+          <span>You save</span>
+          <span>-${{ savings.toFixed(2) }}</span>
+        </div>
+      }
+      <div class="summary-row total">
+        <span>Total (after discount)</span>
+        <span>${{ cart.totalAfter().toFixed(2) }}</span>
+      </div>
+      <button class="btn-checkout">Proceed to Checkout</button>
+      <a routerLink="/" class="btn-continue">← Continue Shopping</a>
+    </div>
+
+  </div>
+}
