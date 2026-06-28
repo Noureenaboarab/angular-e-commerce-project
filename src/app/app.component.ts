@@ -10,5 +10,5 @@ import { CartService } from './services/cart.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  cart = inject(CartService);
+  cartService = inject(CartService);
 }

@@ -1,30 +1,37 @@
-<h2 class="page-title">Our Products</h2>
-
-<div class="grid">
-  @for (product of products; track product.id) {
-    <div class="card">
-      <div class="card-emoji">{{ product.image }}</div>
-      <div class="card-body">
-        <h3>{{ product.name }}</h3>
-        <p class="desc">{{ product.description }}</p>
-        <div class="pricing">
-          @if (product.discount > 0) {
-            <span class="original">${{ product.price.toFixed(2) }}</span>
-            <span class="discounted">${{ (product.price * (1 - product.discount / 100)).toFixed(2) }}</span>
-            <span class="tag">-{{ product.discount }}%</span>
-          } @else {
-            <span class="discounted">${{ product.price.toFixed(2) }}</span>
-          }
-        </div>
-        <div class="actions">
-          <a class="btn-outline" [routerLink]="['/product', product.id]">View Details</a>
-          <button class="btn-primary"
-            [class.in-cart]="cart.isInCart(product.id)"
-            (click)="cart.addToCart(product)">
-            {{ cart.isInCart(product.id) ? '✓ In Cart' : '+ Add to Cart' }}
-          </button>
-        </div>
-      </div>
-    </div>
+<div class="page-header">
+  <h2>Our Products</h2>
+  @if (!loading() && !error()) {
+    <span class="subtitle">{{ products().length }} items</span>
   }
 </div>
+
+<!-- Loading -->
+@if (loading()) {
+  <div class="state-box">
+    <div class="spinner"></div>
+    <p>Loading products…</p>
+  </div>
+}
+
+<!-- Error -->
+@if (error()) {
+  <div class="state-box error">
+    <p>⚠️ {{ error() }}</p>
+    <button (click)="productService.loadProducts()">Retry</button>
+  </div>
+}
+
+<!-- Grid — passes data DOWN via signal inputs, listens to signal outputs -->
+@if (!loading() && !error()) {
+  <div class="grid">
+    @for (product of products(); track product.id) {
+      <app-product-card
+        [product]="product"
+        [inCart]="cartService.isInCart(product.id)"
+        [cartCount]="cartService.quantityOf(product.id)"
+        (addToCart)="onAdd($event)"
+        (viewDetails)="onView($event)"
+      />
+    }
+  </div>
+}

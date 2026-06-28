@@ -1,0 +1,48 @@
+<div class="card">
+
+  <!-- Image / emoji -->
+  <div class="card-image">
+    @if (isImageUrl()) {
+      <img [src]="product().image" [alt]="product().name" />
+    } @else {
+      <span class="emoji">{{ product().image }}</span>
+    }
+    @if (hasDiscount()) {
+      <span class="discount-badge">-{{ product().discount }}%</span>
+    }
+  </div>
+
+  <!-- Body -->
+  <div class="card-body">
+    <h3 class="name">{{ product().name }}</h3>
+    <p class="desc">{{ product().description }}</p>
+
+    <!-- Pricing -->
+    <div class="pricing">
+      @if (hasDiscount()) {
+        <span class="price-original">${{ product().price.toFixed(2) }}</span>
+        <span class="price-final">${{ discountedPrice().toFixed(2) }}</span>
+      } @else {
+        <span class="price-final">${{ product().price.toFixed(2) }}</span>
+      }
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-outline" (click)="viewDetails.emit(product().id)">
+        View Details
+      </button>
+      <button
+        class="btn btn-primary"
+        [class.btn-incart]="inCart()"
+        (click)="addToCart.emit(product())">
+        @if (inCart()) {
+          ✓ In Cart ({{ cartCount() }})
+        } @else {
+          + Add to Cart
+        }
+      </button>
+    </div>
+  </div>
+
+</div>

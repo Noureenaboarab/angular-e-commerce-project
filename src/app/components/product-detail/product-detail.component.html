@@ -2,37 +2,60 @@
 
 @if (product(); as p) {
   <div class="detail-card">
-    <div class="detail-emoji">{{ p.image }}</div>
+
+    <!-- Image panel -->
+    <div class="detail-image">
+      @if (isImageUrl()) {
+        <img [src]="p.image" [alt]="p.name" />
+      } @else {
+        <span class="emoji">{{ p.image }}</span>
+      }
+      @if (hasDiscount()) {
+        <span class="badge">-{{ p.discount }}% OFF</span>
+      }
+    </div>
+
+    <!-- Info panel -->
     <div class="detail-info">
       <h1>{{ p.name }}</h1>
       <p class="description">{{ p.description }}</p>
 
+      <!-- Price breakdown -->
       <div class="price-block">
         <div class="price-row">
           <span class="label">Original Price</span>
-          <span class="value" [class.striked]="p.discount > 0">${{ p.price.toFixed(2) }}</span>
+          <span class="value" [class.striked]="hasDiscount()">${{ p.price.toFixed(2) }}</span>
         </div>
-        @if (p.discount > 0) {
+        @if (hasDiscount()) {
           <div class="price-row">
             <span class="label">Discount</span>
-            <span class="value discount-pct">-{{ p.discount }}%</span>
+            <span class="value green">-{{ p.discount }}%</span>
           </div>
           <div class="price-row final">
             <span class="label">Final Price</span>
-            <span class="value final-price">${{ finalPrice.toFixed(2) }}</span>
+            <span class="value final-price">${{ discountedPrice().toFixed(2) }}</span>
           </div>
         }
       </div>
 
-      <button class="btn-add"
-        [class.in-cart]="cart.isInCart(p.id)"
-        (click)="cart.addToCart(p)">
-        {{ cart.isInCart(p.id) ? '✓ Already in Cart' : '+ Add to Cart' }}
+      <!-- Add to cart button -->
+      <button class="btn-add" [class.in-cart]="inCart()" (click)="addToCart()">
+        @if (inCart()) {
+          ✓ Already in Cart — qty {{ cartCount() }}
+        } @else {
+          + Add to Cart
+        }
       </button>
 
-      <a class="btn-cart" routerLink="/cart">View Cart ({{ cart.cartCount() }} items)</a>
+      <a class="btn-cart" routerLink="/cart">
+        View Cart ({{ cartService.totalCount() }} items)
+      </a>
     </div>
+
   </div>
 } @else {
-  <p>Product not found.</p>
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p>Loading product…</p>
+  </div>
 }

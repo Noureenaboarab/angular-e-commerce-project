@@ -4,8 +4,8 @@
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Products</a>
     <a routerLink="/cart" routerLinkActive="active" class="cart-link">
       🛒 Cart
-      @if (cart.cartCount() > 0) {
-        <span class="badge">{{ cart.cartCount() }}</span>
+      @if (cartService.totalCount() > 0) {
+        <span class="badge">{{ cartService.totalCount() }}</span>
       }
     </a>
   </div>
