@@ -1,42 +1,42 @@
-<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<!-- ── Header ─────────────────────────────────────────────────────────── -->
 <div class="page-header">
   <a routerLink="/products" class="back-link">← Back to Products</a>
-  <h2>{{ isEditMode ? 'Edit Product' : 'Add New Product' }}</h2>
+  <h2>{{ isEditMode ? '✏️ Edit Product' : '➕ Add New Product' }}</h2>
 </div>
 
-<!-- ── Success banner (custom structural directive appIf) ─────────────────── -->
+<!-- ── Success banner ─────────────────────────────────────────────────── -->
 <div *appIf="saveSuccess()" class="success-banner">
   ✅ Product {{ isEditMode ? 'updated' : 'created' }} successfully! Redirecting…
 </div>
 
-<!-- ── Main layout: form + live preview ───────────────────────────────────── -->
+<!-- ── Layout: form + live preview ────────────────────────────────────── -->
 <div class="form-layout">
 
-  <!-- ════ FORM ════════════════════════════════════════════════════════════ -->
-  <form (ngSubmit)="onSubmit()" #productForm="ngForm" class="product-form" novalidate>
+  <!-- ══════════════ REACTIVE FORM ══════════════ -->
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="product-form" novalidate>
 
     <!-- Name -->
     <div class="field" appHighlight highlightColor="#f0f9ff">
       <label for="name">Product Name <span class="req">*</span></label>
       <input
-        id="name" name="name"
-        [(ngModel)]="formData.name"
-        required minlength="3"
-        #nameCtrl="ngModel"
-        [class.invalid]="nameCtrl.invalid && nameCtrl.touched"
+        id="name"
+        formControlName="name"
         placeholder="e.g. Wireless Headphones"
-        [attr.aria-invalid]="nameCtrl.invalid && nameCtrl.touched"
+        [ngClass]="{ 'invalid': isInvalid('name') }"
+        [attr.aria-invalid]="isInvalid('name')"
       />
-      <!-- attribute binding: aria-invalid -->
-      <span *appIf="nameCtrl.invalid && nameCtrl.touched" class="err-msg">
-        Name must be at least 3 characters.
-      </span>
+      @if (isInvalid('name')) {
+        <span class="err-msg">
+          @if (f['name'].errors?.['required'])  { Name is required. }
+          @if (f['name'].errors?.['minlength']) { Name must be at least 3 characters. }
+        </span>
+      }
     </div>
 
     <!-- Category -->
     <div class="field" appHighlight highlightColor="#fdf4ff">
       <label for="category">Category</label>
-      <select id="category" name="category" [(ngModel)]="formData.category">
+      <select id="category" formControlName="category">
         <option value="">— Select category —</option>
         @for (cat of categories; track cat) {
           <option [value]="cat">{{ cat }}</option>
@@ -44,37 +44,48 @@
       </select>
     </div>
 
-    <!-- Price + Discount (side by side) -->
+    <!-- Price + Discount -->
     <div class="field-row">
       <div class="field" appHighlight highlightColor="#f0fdf4">
         <label for="price">Price ($) <span class="req">*</span></label>
         <input
-          id="price" name="price" type="number" min="0" step="0.01"
-          [(ngModel)]="formData.price"
-          required #priceCtrl="ngModel"
-          [class.invalid]="priceCtrl.invalid && priceCtrl.touched"
-          [attr.aria-invalid]="priceCtrl.invalid && priceCtrl.touched"
+          id="price"
+          type="number" min="0" step="0.01"
+          formControlName="price"
           placeholder="0.00"
+          [ngClass]="{ 'invalid': isInvalid('price') }"
+          [attr.aria-invalid]="isInvalid('price')"
         />
-        <span *appIf="priceCtrl.invalid && priceCtrl.touched" class="err-msg">
-          Price is required.
-        </span>
+        @if (isInvalid('price')) {
+          <span class="err-msg">
+            @if (f['price'].errors?.['required']) { Price is required. }
+            @if (f['price'].errors?.['min'])      { Price must be greater than 0. }
+          </span>
+        }
       </div>
 
       <div class="field" appHighlight highlightColor="#fff7ed">
         <label for="discount">Discount (%)</label>
         <input
-          id="discount" name="discount" type="number" min="0" max="100"
-          [(ngModel)]="formData.discount"
+          id="discount"
+          type="number" min="0" max="100"
+          formControlName="discount"
           placeholder="0"
+          [ngClass]="{ 'invalid': isInvalid('discount') }"
         />
-        <!-- ngStyle: tint the input green when discount > 0 -->
+        @if (isInvalid('discount')) {
+          <span class="err-msg">Discount must be between 0 and 100.</span>
+        }
+        <!-- Live discount preview using custom pipe -->
         <span
           class="discount-preview"
-          [ngStyle]="{ color: formData.discount > 0 ? '#16a34a' : '#94a3b8', fontWeight: formData.discount > 0 ? '700' : '400' }"
+          [ngStyle]="{
+            color:      (f['discount'].value > 0) ? '#16a34a' : '#94a3b8',
+            fontWeight: (f['discount'].value > 0) ? '700' : '400'
+          }"
         >
-          @if (formData.discount > 0 && formData.price > 0) {
-            Final: ${{ formData.price | discountedPrice: formData.discount }}
+          @if (f['discount'].value > 0 && f['price'].value > 0) {
+            Final: ${{ f['price'].value | discountedPrice: f['discount'].value }}
           }
         </span>
       </div>
@@ -84,36 +95,43 @@
     <div class="field" appHighlight highlightColor="#fefce8">
       <label for="image">Image URL</label>
       <input
-        id="image" name="image"
-        [(ngModel)]="formData.image"
+        id="image"
+        formControlName="image"
         placeholder="https://..."
-        [attr.data-has-image]="formData.image ? 'true' : null"
+        [ngClass]="{ 'invalid': isInvalid('image') }"
+        [attr.data-has-image]="f['image'].value ? 'true' : null"
       />
-      <!-- attribute binding: data-has-image (DOM manipulation) -->
+      @if (isInvalid('image')) {
+        <span class="err-msg">Must be a valid URL starting with http:// or https://</span>
+      }
     </div>
 
     <!-- Description -->
     <div class="field" appHighlight highlightColor="#f0f4ff">
       <label for="description">Description</label>
       <textarea
-        id="description" name="description"
-        [(ngModel)]="formData.description"
+        id="description"
+        formControlName="description"
         rows="4"
         placeholder="Describe the product…"
       ></textarea>
     </div>
 
-    <!-- ── ngClass demo: button bar ──────────────────────────────────────── -->
+    <!-- Form-level invalid notice (shows after submit attempt) -->
+    <div *appIf="form.invalid && form.touched" class="form-err-banner">
+      ⚠️ Please fix the highlighted errors before saving.
+    </div>
+
+    <!-- Action bar -->
     <div class="action-bar">
-      <!-- ngClass: changes button appearance based on form validity & state -->
       <button
         type="submit"
         [ngClass]="{
-          'btn-save':     true,
-          'btn-disabled': productForm.invalid,
-          'btn-saving':   saving()
+          'btn-save':    true,
+          'btn-saving':  saving(),
+          'btn-disabled': form.invalid && form.touched
         }"
-        [disabled]="productForm.invalid || saving()"
+        [disabled]="saving()"
         [attr.aria-busy]="saving()"
       >
         @if (saving()) {
@@ -124,7 +142,7 @@
       </button>
 
       <button type="button" class="btn-preview" (click)="togglePreview()">
-        {{ showPreview() ? 'Hide Preview' : '👁 Preview' }}
+        {{ showPreview() ? '🙈 Hide Preview' : '👁 Preview' }}
       </button>
 
       <button type="button" class="btn-cancel" (click)="onCancel()">
@@ -134,51 +152,43 @@
 
   </form>
 
-  <!-- ════ LIVE PREVIEW ════════════════════════════════════════════════════ -->
-  <!-- Custom structural directive *appIf controls visibility -->
+  <!-- ══════════════ LIVE PREVIEW ══════════════ -->
   <div *appIf="showPreview()" class="preview-panel">
     <h3 class="preview-title">Live Preview</h3>
     <div class="preview-card">
 
-      <!-- Image / placeholder -->
       <div class="preview-img-wrap">
-        @if (formData.image) {
-          <img [src]="formData.image" [alt]="formData.name" />
+        @if (previewValues.image) {
+          <img [src]="previewValues.image" [alt]="previewValues.name" />
         } @else {
           <span class="preview-placeholder">🖼️</span>
         }
-        <!-- ngStyle: badge only shows when discount > 0 -->
         <span
           class="preview-badge"
-          [ngStyle]="{ display: formData.discount > 0 ? 'block' : 'none' }"
+          [ngStyle]="{ display: previewValues.discount > 0 ? 'inline-block' : 'none' }"
         >
-          -{{ formData.discount }}%
+          -{{ previewValues.discount }}%
         </span>
       </div>
 
       <div class="preview-body">
-        <!-- ngClass: dim name if empty -->
-        <p
-          class="preview-name"
-          [ngClass]="{ 'empty-hint': !formData.name }"
-        >
-          {{ formData.name || 'Product name…' }}
+        <p class="preview-name" [ngClass]="{ 'empty-hint': !previewValues.name }">
+          {{ previewValues.name || 'Product name…' }}
         </p>
-
-        @if (formData.category) {
-          <span class="preview-category">{{ formData.category }}</span>
+        @if (previewValues.category) {
+          <span class="preview-category">{{ previewValues.category }}</span>
         }
-
         <p class="preview-desc">
-          {{ formData.description || 'Description will appear here…' }}
+          {{ previewValues.description || 'Description will appear here…' }}
         </p>
-
         <div class="preview-price-row">
-          @if (formData.discount > 0) {
-            <span class="preview-original">${{ formData.price.toFixed(2) }}</span>
-            <span class="preview-final">${{ formData.price | discountedPrice: formData.discount }}</span>
+          @if (previewValues.discount > 0) {
+            <span class="preview-original">${{ (+previewValues.price || 0).toFixed(2) }}</span>
+            <span class="preview-final">
+              ${{ previewValues.price | discountedPrice: previewValues.discount }}
+            </span>
           } @else {
-            <span class="preview-final">${{ formData.price.toFixed(2) }}</span>
+            <span class="preview-final">${{ (+previewValues.price || 0).toFixed(2) }}</span>
           }
         </div>
       </div>

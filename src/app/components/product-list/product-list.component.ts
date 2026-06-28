@@ -25,16 +25,14 @@ export class ProductListComponent {
   private router = inject(Router);
   private route  = inject(ActivatedRoute);
 
-  // ── Resolver feeds data in via route data ──────────────────────────────────
+  // Resolver data feeds into the list
   resolvedProducts = signal<Product[]>(
     this.route.snapshot.data['products'] ?? []
   );
 
-  // Sync resolver data → service cache so detail/edit pages can reuse it
   constructor() {
     const resolved: Product[] = this.route.snapshot.data['products'] ?? [];
     if (resolved.length > 0) {
-      // Warm the service cache from resolver result
       this.productService['_products'].set(resolved);
     }
   }
@@ -54,22 +52,30 @@ export class ProductListComponent {
       : this.resolvedProducts().filter(p => p.category === cat);
   });
 
-  // ── Actions ────────────────────────────────────────────────────────────────
-  onAdd(product: Product): void {
-    this.cartService.addToCart(product);
+  // ── Delete confirm modal state ─────────────────────────────────────────────
+  confirmDeleteId   = signal<number | null>(null);
+  confirmDeleteName = signal<string>('');
+
+  requestDelete(product: Product): void {
+    this.confirmDeleteId.set(product.id);
+    this.confirmDeleteName.set(product.name);
   }
 
-  onView(productId: number): void {
-    this.router.navigate(['/product', productId]);
+  cancelDelete(): void {
+    this.confirmDeleteId.set(null);
+    this.confirmDeleteName.set('');
   }
 
-  onEdit(productId: number): void {
-    this.router.navigate(['/product', productId, 'edit']);
+  confirmDelete(): void {
+    const id = this.confirmDeleteId();
+    if (id === null) return;
+    this.productService.deleteProduct(id);
+    this.resolvedProducts.update(list => list.filter(p => p.id !== id));
+    this.cancelDelete();
   }
 
-  onDelete(productId: number): void {
-    if (!confirm('Delete this product?')) return;
-    this.productService.deleteProduct(productId);
-    this.resolvedProducts.update(list => list.filter(p => p.id !== productId));
-  }
+  // ── Navigation ─────────────────────────────────────────────────────────────
+  onAdd(product: Product): void    { this.cartService.addToCart(product); }
+  onView(id: number): void         { this.router.navigate(['/product', id]); }
+  onEdit(id: number): void         { this.router.navigate(['/product', id, 'edit']); }
 }

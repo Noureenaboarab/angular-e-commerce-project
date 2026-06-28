@@ -1,10 +1,9 @@
-<!-- ── Page header ──────────────────────────────────────────────────────── -->
+<!-- ── Page header ──────────────────────────────────────────────────── -->
 <div class="page-header">
   <div class="header-left">
     <h2>Our Products</h2>
     <span class="subtitle">{{ filteredProducts().length }} item(s)</span>
   </div>
-  <!-- Attribute binding: title tooltip on the Add button -->
   <a
     routerLink="/product/new"
     class="btn-add-new"
@@ -14,7 +13,7 @@
   </a>
 </div>
 
-<!-- ── Category filter tabs (ngClass for active state) ──────────────────── -->
+<!-- ── Category filter tabs ─────────────────────────────────────────── -->
 <div class="category-tabs">
   @for (cat of categories(); track cat) {
     <button
@@ -28,7 +27,7 @@
   }
 </div>
 
-<!-- ── Product grid ─────────────────────────────────────────────────────── -->
+<!-- ── Product grid ──────────────────────────────────────────────────── -->
 <div class="grid">
   @for (product of filteredProducts(); track product.id) {
     <div class="card-wrapper">
@@ -39,7 +38,6 @@
         (addToCart)="onAdd($event)"
         (viewDetails)="onView($event)"
       />
-      <!-- CRUD actions below each card -->
       <div class="card-actions">
         <button
           class="action-btn edit-btn"
@@ -53,7 +51,7 @@
           class="action-btn delete-btn"
           appHighlight highlightColor="#fff1f2"
           [attr.aria-label]="'Delete ' + product.name"
-          (click)="onDelete(product.id)"
+          (click)="requestDelete(product)"
         >
           🗑 Delete
         </button>
@@ -62,8 +60,25 @@
   }
 </div>
 
-<!-- ── Empty state (custom structural directive) ─────────────────────────── -->
+<!-- ── Empty state ────────────────────────────────────────────────────── -->
 <div *appIf="filteredProducts().length === 0" class="empty-state">
   <p>No products found in this category.</p>
   <button class="reset-btn" (click)="selectedCategory.set('all')">Show all</button>
+</div>
+
+<!-- ── Delete confirmation modal ─────────────────────────────────────── -->
+<div *appIf="confirmDeleteId() !== null" class="modal-backdrop" (click)="cancelDelete()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-icon">🗑️</div>
+    <h3 class="modal-title">Delete Product?</h3>
+    <p class="modal-body">
+      Are you sure you want to delete
+      <strong>{{ confirmDeleteName() }}</strong>?
+      This action cannot be undone.
+    </p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" (click)="cancelDelete()">Cancel</button>
+      <button class="modal-btn modal-confirm" (click)="confirmDelete()">Yes, Delete</button>
+    </div>
+  </div>
 </div>

@@ -58,3 +58,37 @@
   padding: .5rem 1.2rem; border-radius: 8px; background: #e94560;
   color: #fff; border: none; cursor: pointer; font-weight: 600;
 }
+
+/* ── Delete confirm modal ─────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+  animation: fadeIn .15s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: #fff; border-radius: 16px; padding: 2rem 2.25rem;
+  max-width: 420px; width: 90%; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  animation: slideUp .2s ease;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.modal-icon  { font-size: 2.5rem; margin-bottom: .75rem; }
+.modal-title { font-size: 1.25rem; color: #1a1a2e; margin: 0 0 .6rem; }
+.modal-body  { color: #64748b; font-size: .95rem; line-height: 1.6; margin: 0 0 1.5rem; }
+.modal-body strong { color: #1a1a2e; }
+
+.modal-actions { display: flex; gap: .75rem; justify-content: center; }
+.modal-btn {
+  padding: .65rem 1.6rem; border-radius: 9px;
+  font-size: .9rem; font-weight: 700; cursor: pointer; border: none;
+  transition: background .15s;
+}
+.modal-cancel  { background: #f1f5f9; color: #475569; }
+.modal-cancel:hover  { background: #e2e8f0; }
+.modal-confirm { background: #e94560; color: #fff; }
+.modal-confirm:hover { background: #c73652; }
