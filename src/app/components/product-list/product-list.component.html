@@ -1,30 +1,37 @@
+<!-- ── Page header ──────────────────────────────────────────────────────── -->
 <div class="page-header">
-  <h2>Our Products</h2>
-  @if (!loading() && !error()) {
-    <span class="subtitle">{{ products().length }} items</span>
+  <div class="header-left">
+    <h2>Our Products</h2>
+    <span class="subtitle">{{ filteredProducts().length }} item(s)</span>
+  </div>
+  <!-- Attribute binding: title tooltip on the Add button -->
+  <a
+    routerLink="/product/new"
+    class="btn-add-new"
+    [attr.title]="'Add a new product to the catalogue'"
+  >
+    ➕ Add Product
+  </a>
+</div>
+
+<!-- ── Category filter tabs (ngClass for active state) ──────────────────── -->
+<div class="category-tabs">
+  @for (cat of categories(); track cat) {
+    <button
+      class="tab"
+      [ngClass]="{ 'tab-active': selectedCategory() === cat }"
+      (click)="selectedCategory.set(cat)"
+      appHighlight highlightColor="#eff6ff"
+    >
+      {{ cat | titlecase }}
+    </button>
   }
 </div>
 
-<!-- Loading -->
-@if (loading()) {
-  <div class="state-box">
-    <div class="spinner"></div>
-    <p>Loading products…</p>
-  </div>
-}
-
-<!-- Error -->
-@if (error()) {
-  <div class="state-box error">
-    <p>⚠️ {{ error() }}</p>
-    <button (click)="productService.loadProducts()">Retry</button>
-  </div>
-}
-
-<!-- Grid — passes data DOWN via signal inputs, listens to signal outputs -->
-@if (!loading() && !error()) {
-  <div class="grid">
-    @for (product of products(); track product.id) {
+<!-- ── Product grid ─────────────────────────────────────────────────────── -->
+<div class="grid">
+  @for (product of filteredProducts(); track product.id) {
+    <div class="card-wrapper">
       <app-product-card
         [product]="product"
         [inCart]="cartService.isInCart(product.id)"
@@ -32,6 +39,31 @@
         (addToCart)="onAdd($event)"
         (viewDetails)="onView($event)"
       />
-    }
-  </div>
-}
+      <!-- CRUD actions below each card -->
+      <div class="card-actions">
+        <button
+          class="action-btn edit-btn"
+          appHighlight highlightColor="#eff6ff"
+          [attr.aria-label]="'Edit ' + product.name"
+          (click)="onEdit(product.id)"
+        >
+          ✏️ Edit
+        </button>
+        <button
+          class="action-btn delete-btn"
+          appHighlight highlightColor="#fff1f2"
+          [attr.aria-label]="'Delete ' + product.name"
+          (click)="onDelete(product.id)"
+        >
+          🗑 Delete
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ── Empty state (custom structural directive) ─────────────────────────── -->
+<div *appIf="filteredProducts().length === 0" class="empty-state">
+  <p>No products found in this category.</p>
+  <button class="reset-btn" (click)="selectedCategory.set('all')">Show all</button>
+</div>

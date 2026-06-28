@@ -1,12 +1,14 @@
-// ─── Shared interfaces — imported by both services and all components ──────────
+// ─── Shared interfaces ────────────────────────────────────────────────────────
 
 export interface Product {
   id: number;
   name: string;
   price: number;
   description: string;
-  image: string;      // URL (from API) or emoji fallback
+  image: string;
   discount: number;   // percentage 0-100
+  category?: string;
+  rating?: number;
 }
 
 export interface CartItem {

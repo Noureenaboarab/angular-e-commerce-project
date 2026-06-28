@@ -1,7 +1,14 @@
+<!-- ── Navigation bar ───────────────────────────────────────────────────── -->
 <nav class="navbar">
-  <a class="brand" routerLink="/">🛍️ ShopAngular</a>
+  <a class="brand" routerLink="/products">🛍️ ShopAngular</a>
+
   <div class="nav-links">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Products</a>
+    <a routerLink="/products" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+      🏠 Products
+    </a>
+    <a routerLink="/product/new" routerLinkActive="active">
+      ➕ Add Product
+    </a>
     <a routerLink="/cart" routerLinkActive="active" class="cart-link">
       🛒 Cart
       @if (cartService.totalCount() > 0) {
@@ -11,6 +18,13 @@
   </div>
 </nav>
 
+<!-- ── Resolver progress bar (loading icon while resolver fetches) ────────── -->
+<!-- Uses custom structural directive *appIf -->
+<div *appIf="isResolving()" class="resolver-bar">
+  <div class="resolver-progress"></div>
+</div>
+
+<!-- ── Page content ──────────────────────────────────────────────────────── -->
 <main class="container">
   <router-outlet />
 </main>

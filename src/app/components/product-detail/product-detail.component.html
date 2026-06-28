@@ -1,45 +1,88 @@
-<a class="back" routerLink="/">← Back to Products</a>
+<a class="back" routerLink="/products">← Back to Products</a>
 
-@if (product(); as p) {
+@if (product) {
   <div class="detail-card">
 
-    <!-- Image panel -->
+    <!-- ── Image panel ───────────────────────────────────────────────── -->
     <div class="detail-image">
-      @if (isImageUrl()) {
-        <img [src]="p.image" [alt]="p.name" />
+      @if (product.image.startsWith('http') || product.image.startsWith('/')) {
+        <!-- attribute binding: alt & src -->
+        <img [src]="product.image" [alt]="product.name" />
       } @else {
-        <span class="emoji">{{ p.image }}</span>
+        <span class="emoji">{{ product.image }}</span>
       }
-      @if (hasDiscount()) {
-        <span class="badge">-{{ p.discount }}% OFF</span>
-      }
+      <!-- ngStyle: badge visible only when discount > 0 -->
+      <span
+        class="badge"
+        [ngStyle]="{ display: hasDiscount() ? 'inline-block' : 'none' }"
+      >
+        -{{ product.discount }}% OFF
+      </span>
     </div>
 
-    <!-- Info panel -->
+    <!-- ── Info panel ────────────────────────────────────────────────── -->
     <div class="detail-info">
-      <h1>{{ p.name }}</h1>
-      <p class="description">{{ p.description }}</p>
 
-      <!-- Price breakdown -->
+      <!-- Category chip (ngClass: colour by category) -->
+      @if (product.category) {
+        <span
+          class="category-chip"
+          [ngClass]="{
+            'chip-electronics': product.category === 'electronics',
+            'chip-clothing':    product.category?.includes('clothing'),
+            'chip-jewelery':    product.category === 'jewelery'
+          }"
+        >
+          {{ product.category }}
+        </span>
+      }
+
+      <h1>{{ product.name }}</h1>
+
+      <!-- Star rating — attribute binding: aria-label -->
+      <div class="stars" [attr.aria-label]="'Rating: ' + (product.rating ?? 0) + ' out of 5'">
+        @for (s of fullStars; track $index) { <span class="star filled">★</span> }
+        @if (hasHalfStar) { <span class="star half">★</span> }
+        <span class="rating-val">{{ product.rating?.toFixed(1) }}</span>
+      </div>
+
+      <!-- Description: uses the custom truncate pipe for a short excerpt -->
+      <p class="description" appHighlight highlightColor="#f8fafc">
+        {{ product.description }}
+      </p>
+
+      <!-- Price block -->
       <div class="price-block">
         <div class="price-row">
           <span class="label">Original Price</span>
-          <span class="value" [class.striked]="hasDiscount()">${{ p.price.toFixed(2) }}</span>
+          <span class="value" [class.striked]="hasDiscount()">
+            ${{ product.price.toFixed(2) }}
+          </span>
         </div>
-        @if (hasDiscount()) {
+        <!-- custom structural directive: show discount rows only if discount exists -->
+        <div *appIf="hasDiscount()">
           <div class="price-row">
             <span class="label">Discount</span>
-            <span class="value green">-{{ p.discount }}%</span>
+            <span class="value green">-{{ product.discount }}%</span>
           </div>
           <div class="price-row final">
             <span class="label">Final Price</span>
-            <span class="value final-price">${{ discountedPrice().toFixed(2) }}</span>
+            <!-- discountedPrice custom pipe -->
+            <span class="value final-price">
+              ${{ product.price | discountedPrice: product.discount }}
+            </span>
           </div>
-        }
+        </div>
       </div>
 
-      <!-- Add to cart button -->
-      <button class="btn-add" [class.in-cart]="inCart()" (click)="addToCart()">
+      <!-- Actions -->
+      <button
+        class="btn-add"
+        [ngClass]="{ 'in-cart': inCart() }"
+        [attr.aria-pressed]="inCart()"
+        (click)="addToCart()"
+        appHighlight highlightColor="#fef2f2"
+      >
         @if (inCart()) {
           ✓ Already in Cart — qty {{ cartCount() }}
         } @else {
@@ -47,15 +90,18 @@
         }
       </button>
 
-      <a class="btn-cart" routerLink="/cart">
-        View Cart ({{ cartService.totalCount() }} items)
-      </a>
-    </div>
+      <div class="secondary-actions">
+        <a class="btn-cart" routerLink="/cart">
+          View Cart ({{ cartService.totalCount() }} items)
+        </a>
+        <a
+          class="btn-edit"
+          [routerLink]="['/product', product.id, 'edit']"
+        >
+          ✏️ Edit Product
+        </a>
+      </div>
 
-  </div>
-} @else {
-  <div class="loading-box">
-    <div class="spinner"></div>
-    <p>Loading product…</p>
+    </div>
   </div>
 }

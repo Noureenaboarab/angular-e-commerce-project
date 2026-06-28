@@ -1,53 +1,45 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ProductService } from '../../services/product.service';
-import { CartService }    from '../../services/cart.service';
-import { Product }        from '../../models/product.model';
+import { NgClass, NgStyle } from '@angular/common';
+import { CartService } from '../../services/cart.service';
+import { Product }     from '../../models/product.model';
+import { HighlightDirective }  from '../../directives/highlight.directive';
+import { AppIfDirective }      from '../../directives/app-if.directive';
+import { DiscountedPricePipe, TruncatePipe } from '../../pipes/custom.pipes';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [RouterLink],
+  imports: [
+    RouterLink, NgClass, NgStyle,
+    HighlightDirective, AppIfDirective,
+    DiscountedPricePipe, TruncatePipe,
+  ],
   templateUrl: './product-detail.component.html',
   styleUrl:    './product-detail.component.css',
 })
-export class ProductDetailComponent implements OnInit {
-  private route          = inject(ActivatedRoute);
-  private productService = inject(ProductService);
-  cartService            = inject(CartService);
+export class ProductDetailComponent {
+  private route   = inject(ActivatedRoute);
+  cartService     = inject(CartService);
 
-  // ── Local signal holds the resolved product ────────────────────────────────
-  product = signal<Product | undefined>(undefined);
+  // ── Product arrives from the resolver via route data ──────────────────────
+  product: Product = this.route.snapshot.data['product'];
 
-  // ── Computed values derived from the product signal ────────────────────────
-  hasDiscount     = computed(() => (this.product()?.discount ?? 0) > 0);
-  discountedPrice = computed(() => {
-    const p = this.product();
-    return p ? p.price * (1 - p.discount / 100) : 0;
-  });
-  isImageUrl = computed(() => {
-    const img = this.product()?.image ?? '';
-    return img.startsWith('http') || img.startsWith('/');
-  });
-  inCart    = computed(() => this.cartService.isInCart(this.product()?.id ?? -1));
-  cartCount = computed(() => this.cartService.quantityOf(this.product()?.id ?? -1));
+  // ── Computed helpers ──────────────────────────────────────────────────────
+  hasDiscount = computed(() => (this.product?.discount ?? 0) > 0);
 
-  ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    // Products may already be cached — try immediately, then poll
-    const tryResolve = () => {
-      const p = this.productService.productById(id)();
-      if (p) { this.product.set(p); return true; }
-      return false;
-    };
-    if (!tryResolve()) {
-      this.productService.loadProducts();
-      const t = setInterval(() => { if (tryResolve()) clearInterval(t); }, 100);
-    }
+  inCart    = computed(() => this.cartService.isInCart(this.product?.id));
+  cartCount = computed(() => this.cartService.quantityOf(this.product?.id));
+
+  // Star rating helpers
+  get fullStars(): number[] {
+    return Array(Math.floor(this.product?.rating ?? 0)).fill(0);
+  }
+  get hasHalfStar(): boolean {
+    return (this.product?.rating ?? 0) % 1 >= 0.5;
   }
 
   addToCart(): void {
-    const p = this.product();
-    if (p) this.cartService.addToCart(p);
+    if (this.product) this.cartService.addToCart(this.product);
   }
 }

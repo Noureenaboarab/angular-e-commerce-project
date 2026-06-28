@@ -1,27 +1,42 @@
-<div class="card">
+<!-- appHighlight: custom attribute directive (highlights card on hover) -->
+<div class="card" appHighlight highlightColor="#f8fafc">
 
   <!-- Image / emoji -->
   <div class="card-image">
     @if (isImageUrl()) {
-      <img [src]="product().image" [alt]="product().name" />
+      <!-- attribute binding: src + alt (HTML/DOM property binding) -->
+      <img [src]="product().image" [alt]="product().name" [title]="product().name" />
     } @else {
       <span class="emoji">{{ product().image }}</span>
     }
-    @if (hasDiscount()) {
-      <span class="discount-badge">-{{ product().discount }}%</span>
-    }
+    <!-- ngStyle: discount badge colour driven by discount value -->
+    <span
+      class="discount-badge"
+      [ngStyle]="{
+        display:    hasDiscount() ? 'block' : 'none',
+        background: product().discount >= 20 ? '#7c3aed' : '#e94560'
+      }"
+    >
+      -{{ product().discount }}%
+    </span>
   </div>
 
   <!-- Body -->
   <div class="card-body">
-    <h3 class="name">{{ product().name }}</h3>
-    <p class="desc">{{ product().description }}</p>
+    <!-- ngClass: dim name when out of stock (no stock field in model, use discount as demo flag) -->
+    <h3 class="name" [ngClass]="{ 'name-featured': product().discount >= 20 }">
+      {{ product().name }}
+    </h3>
 
-    <!-- Pricing -->
+    <!-- Custom pipe: truncate description to 80 chars -->
+    <p class="desc">{{ product().description | truncate: 80 }}</p>
+
+    <!-- Pricing — custom discountedPrice pipe -->
     <div class="pricing">
       @if (hasDiscount()) {
         <span class="price-original">${{ product().price.toFixed(2) }}</span>
-        <span class="price-final">${{ discountedPrice().toFixed(2) }}</span>
+        <!-- discountedPrice custom pipe -->
+        <span class="price-final">${{ product().price | discountedPrice: product().discount }}</span>
       } @else {
         <span class="price-final">${{ product().price.toFixed(2) }}</span>
       }
@@ -29,13 +44,19 @@
 
     <!-- Actions -->
     <div class="actions">
-      <button class="btn btn-outline" (click)="viewDetails.emit(product().id)">
+      <button
+        class="btn btn-outline"
+        [attr.aria-label]="'View details for ' + product().name"
+        (click)="viewDetails.emit(product().id)"
+      >
         View Details
       </button>
       <button
         class="btn btn-primary"
         [class.btn-incart]="inCart()"
-        (click)="addToCart.emit(product())">
+        [attr.aria-pressed]="inCart()"
+        (click)="addToCart.emit(product())"
+      >
         @if (inCart()) {
           ✓ In Cart ({{ cartCount() }})
         } @else {

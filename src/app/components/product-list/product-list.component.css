@@ -1,27 +1,60 @@
-.page-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem; }
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.25rem; flex-wrap: wrap; gap: .75rem;
+}
+.header-left { display: flex; align-items: baseline; gap: .75rem; }
 .page-header h2 { font-size: 1.6rem; color: #1a1a2e; margin: 0; }
 .subtitle { font-size: .9rem; color: #64748b; }
 
+.btn-add-new {
+  padding: .6rem 1.2rem; background: #e94560; color: #fff;
+  border-radius: 9px; font-weight: 700; font-size: .88rem;
+  text-decoration: none; transition: background .2s;
+}
+.btn-add-new:hover { background: #c73652; }
+
+/* ── Category tabs ────────────────────────────────────────────────────── */
+.category-tabs {
+  display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+}
+.tab {
+  padding: .4rem 1rem; border-radius: 20px; border: 1.5px solid #e2e8f0;
+  background: #fff; font-size: .83rem; font-weight: 600; cursor: pointer;
+  color: #64748b; transition: border-color .2s, color .2s;
+  text-transform: capitalize;
+}
+.tab:hover { border-color: #6366f1; color: #6366f1; }
+.tab-active { background: #6366f1; color: #fff !important; border-color: #6366f1 !important; }
+
+/* ── Product grid ─────────────────────────────────────────────────────── */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.25rem;
 }
 
-/* Loading / Error */
-.state-box {
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 1rem; padding: 4rem; color: #64748b;
-}
-.state-box.error { color: #dc2626; }
-.state-box button {
-  padding: .5rem 1.2rem; background: #e94560; color: #fff;
-  border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
+.card-wrapper { display: flex; flex-direction: column; }
+
+.card-actions {
+  display: flex; gap: .5rem; margin-top: .4rem;
 }
 
-.spinner {
-  width: 40px; height: 40px;
-  border: 4px solid #e2e8f0; border-top-color: #e94560;
-  border-radius: 50%; animation: spin .8s linear infinite;
+.action-btn {
+  flex: 1; padding: .42rem 0; border-radius: 8px; border: 1.5px solid;
+  font-size: .8rem; font-weight: 600; cursor: pointer;
+  background: #fff; transition: background .15s;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+.edit-btn   { border-color: #6366f1; color: #6366f1; }
+.edit-btn:hover   { background: #eef2ff; }
+.delete-btn { border-color: #e94560; color: #e94560; }
+.delete-btn:hover { background: #fff1f2; }
+
+/* ── Empty state ──────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 4rem 1rem; color: #64748b;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+}
+.reset-btn {
+  padding: .5rem 1.2rem; border-radius: 8px; background: #e94560;
+  color: #fff; border: none; cursor: pointer; font-weight: 600;
+}
